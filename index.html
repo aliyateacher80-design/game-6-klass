@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <title>Файлдық жүйе және кеңейтулер - 10 Тапсырма</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #fff;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            width: 100%;
+            max-width: 750px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        h1 { margin-bottom: 5px; color: #ffd700; }
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.2);
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            outline: none;
+            text-align: center;
+        }
+        .btn {
+            background-color: #ffb300;
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btn:hover { background-color: #ffa000; transform: scale(1.05); }
+        
+        .file-card {
+            background: #ffffff;
+            color: #111;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            margin-bottom: 15px;
+        }
+        .folders-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .folder {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px dashed #ffd700;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .folder:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-2px); }
+        .folder h3 { margin: 0 0 5px 0; font-size: 15px; color: #ffd700; }
+        .folder span { font-size: 14px; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 1-КЕЗЕҢ: Аты-жөнді енгізу -->
+        <div id="screen-name">
+            <h1>📂 Файлдық жүйе және кеңейтулер</h1>
+            <p>Интерактивті викторина: 10 файлды өз қалталарына сұрыпта!</p>
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.3); margin: 20px 0;">
+            <h3>👨‍🎓 Оқушының аты-жөні:</h3>
+            <input type="text" id="studentNameInput" placeholder="Аты-жөніңізді жазыңыз...">
+            <br>
+            <button class="btn" onclick="startGame()">🎮 Ойынды бастау</button>
+        </div>
+
+        <!-- 2-КЕЗЕҢ: Ойын барысы -->
+        <div id="screen-game" class="hidden">
+            <div class="info-bar">
+                <span id="studentDisplay"></span>
+                <span id="scoreDisplay">Ұпай: 0 / 10</span>
+            </div>
+            <h3 id="progressTitle">Тапсырма 1 / 10</h3>
+            
+            <div class="file-card" id="fileText">
+                📄 файл_аты
+            </div>
+            
+            <p style="font-size: 14px; color: #e0e0e0;">Бұл файлды қай қалтаға салу керек? Сәйкес папканы таңдаңыз:</p>
+            
+            <div class="folders-container" id="folderButtons">
+                <!-- Папкалар осы жерде шығады -->
+            </div>
+        </div>
+
+        <!-- 3-КЕЗЕҢ: Нәтиже -->
+        <div id="screen-result" class="hidden">
+            <h1>🏆 Тапсырма аяқталды!</h1>
+            <p id="resultStudent" style="font-size: 18px; font-weight: bold;"></p>
+            <div id="finalScoreText" style="font-size: 26px; font-weight: bold; color: #ffd700; margin: 20px 0;"></div>
+            <p id="feedbackText" style="font-size: 16px; margin-bottom: 20px;"></p>
+            <button class="btn" onclick="restartGame()">🔄 Қайтадан бастау</button>
+        </div>
+    </div>
+
+    <script>
+        const tasksData = [
+            {
+                file: "📝 баяндама.docx",
+                correctFolder: "Мәтіндік құжаттар (.txt, .docx)",
+                folders: ["Мәтіндік құжаттар (.txt, .docx)", "Графикалық файлдар (.jpg, .png)", "Музыкалық файлдар (.mp3)", "Орындалатын файлдар (.exe)"]
+            },
+            {
+                file: "🖼️ сурет_табиғат.jpg",
+                correctFolder: "Графикалық файлдар (.jpg, .png)",
+                folders: ["Видео файлдар (.mp4, .avi)", "Графикалық файлдар (.jpg, .png)", "Мәтіндік құжаттар (.txt, .docx)", "Архивтер (.zip, .rar)"]
+            },
+            {
+                file: "🎵 домбыра_күйі.mp3",
+                correctFolder: "Музыкалық файлдар (.mp3)",
+                folders: ["Музыкалық файлдар (.mp3)", "Видео файлдар (.mp4, .avi)", "Графикалық файлдар (.jpg, .png)", "Орындалатын файлдар (.exe)"]
+            },
+            {
+                file: "⚙️ setup.exe",
+                correctFolder: "Орындалатын файлдар (.exe)",
+                folders: ["Орындалатын файлдар (.exe)", "Мәтіндік құжаттар (.txt, .docx)", "Архивтер (.zip, .rar)", "Графикалық файлдар (.jpg, .png)"]
+            },
+            {
+                file: "📹 мектеп_өмірі.mp4",
+                correctFolder: "Видео файлдар (.mp4, .avi)",
+                folders: ["Музыкалық файлдар (.mp3)", "Видео файлдар (.mp4, .avi)", "Графикалық файлдар (.jpg, .png)", "Мәтіндік құжаттар (.txt, .docx)"]
+            },
+            {
+                file: "📦 материалдар.zip",
+                correctFolder: "Архивтелген файлдар (.zip, .rar)",
+                folders: ["Архивтелген файлдар (.zip, .rar)", "Орындалатын файлдар (.exe)", "Мәтіндік құжаттар (.txt, .docx)", "Видео файлдар (.mp4, .avi)"]
+            },
+            {
+                file: "⚠️ Қате аты: сабақ?жоспары.txt",
+                correctFolder: "Қате аталған файл (тыйым салынған символ '?' бар)",
+                folders: ["Дұрыс аталған файл", "Қате аталған файл (тыйым салынған символ '?' бар)"]
+            },
+            {
+                file: "📊 презентация.pptx",
+                correctFolder: "Презентациялар (.pptx)",
+                folders: ["Презентациялар (.pptx)", "Графикалық файлдар (.jpg, .png)", "Мәтіндік құжаттар (.txt, .docx)", "Архивтелген файлдар (.zip, .rar)"]
+            },
+            {
+                file: "⚠️ Қате аты: есеп/2026.docx",
+                correctFolder: "Қате аталған файл (тыйым салынған символ '/' бар)",
+                folders: ["Дұрыс аталған файл", "Қате аталған файл (тыйым салынған символ '/' бар)"]
+            },
+            {
+                file: "📄 конспект.txt",
+                correctFolder: "Мәтіндік құжаттар (.txt, .docx)",
+                folders: ["Мәтіндік құжаттар (.txt, .docx)", "Презентациялар (.pptx)", "Музыкалық файлдар (.mp3)", "Орындалатын файлдар (.exe)"]
+            }
+        ];
+
+        let studentName = "";
+        let currentIndex = 0;
+        let score = 0;
+
+        function startGame() {
+            const input = document.getElementById("studentNameInput");
+            if (input.value.trim() === "") {
+                alert("⚠️ Өтініш, аты-жөніңізді енгізіңіз!");
+                return;
+            }
+            studentName = input.value.trim();
+            document.getElementById("studentDisplay").innerText = "👤 " + studentName;
+            document.getElementById("screen-name").classList.add("hidden");
+            document.getElementById("screen-game").classList.remove("hidden");
+            loadTask();
+        }
+
+        function loadTask() {
+            if (currentIndex < tasksData.length) {
+                const current = tasksData[currentIndex];
+                document.getElementById("progressTitle").innerText = `📁 Тапсырма ${currentIndex + 1} / ${tasksData.length}`;
+                document.getElementById("fileText").innerText = current.file;
+                document.getElementById("scoreDisplay").innerText = `Ұпай: ${score} / 10`;
+
+                const container = document.getElementById("folderButtons");
+                container.innerHTML = "";
+
+                let shuffledFolders = [...current.folders].sort(() => Math.random() - 0.5);
+
+                shuffledFolders.forEach(folderName => {
+                    let btn = document.createElement("div");
+                    btn.className = "folder";
+                    btn.innerHTML = `<h3>📁 Қалта</h3><span>${folderName}</span>`;
+                    btn.onclick = () => checkFolder(folderName);
+                    container.appendChild(btn);
+                });
+            } else {
+                showResult();
+            }
+        }
+
+        function checkFolder(selectedFolder) {
+            const current = tasksData[currentIndex];
+            if (selectedFolder === current.correctFolder) {
+                score += 1;
+                alert("✅ Дұрыс! Бұл файл тиісті қалтаға салынды (+1 ұпай).");
+            } else {
+                alert(`❌ Қате! Дұрыс қалта: ${current.correctFolder}`);
+            }
+            currentIndex++;
+            loadTask();
+        }
+
+        function showResult() {
+            document.getElementById("screen-game").classList.add("hidden");
+            document.getElementById("screen-result").classList.remove("hidden");
+            document.getElementById("resultStudent").innerText = "Оқушы: " + studentName;
+            document.getElementById("finalScoreText").innerText = `Жалпы нәтиже: ${score} / 10 ұпай`;
+            
+            let feedback = "";
+            if (score === 10) {
+                feedback = "🌟 Өте керемет! Барлық 10 файлды дұрыс сұрыптадыңыз!";
+            } else if (score >= 7) {
+                feedback = "👍 Жақсы нәтиже! Файл кеңейтулерін жақсы ажыратасыз.";
+            } else {
+                feedback = "📚 Файлдық жүйе мен ережелерді қайталап шығу ұсынылады.";
+            }
+            document.getElementById("feedbackText").innerText = feedback;
+        }
+
+        function restartGame() {
+            studentName = "";
+            currentIndex = 0;
+            score = 0;
+            document.getElementById("studentNameInput").value = "";
+            document.getElementById("screen-result").classList.add("hidden");
+            document.getElementById("screen-name").classList.remove("hidden");
+        }
+    </script>
+</body>
+</html>
